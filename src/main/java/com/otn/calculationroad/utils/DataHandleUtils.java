@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class DataHandleUtils {
 
-    //此处用本地线程localthread也可以
+    //此处用本地线程localthread将vermap和verEdgeMap包装起来，防止并发情况下多个线程修改同一块静态资源
     private static ReentrantLock lock = new ReentrantLock();
 
     //图的顶节点集
@@ -47,6 +47,7 @@ public class DataHandleUtils {
         try {
             lock.lock();
             String caculateType = param.getCacuType();
+            //填充verMap,verEdgeMap数据
             insertData(param, fileName, caculateType);
 
             switch (caculateType) {
@@ -72,7 +73,7 @@ public class DataHandleUtils {
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         } finally {
-            //map清空
+            //静态map清空
             verMap = new HashMap<>();
             verEdgeMap = new HashMap<>();
             lock.unlock();
@@ -123,12 +124,14 @@ public class DataHandleUtils {
         JSONObject returnJson = new JSONObject();
         JSONArray returnArray = new JSONArray();
         AtomicInteger atomicInteger = new AtomicInteger(0);
+        //是否单域
         Boolean flag = param.getIsSingle();
         String srcAreaId = param.getSrcAreaId();
         String dstAreaId = param.getDstAreaId();
+        //保护类型，保护情况下要算出最优和次优路径
         String slaType = param.getSlaType();
         List<Edge> newList = new ArrayList<>();
-        if(false == flag){
+        if (false == flag) {
             List<Edge> edgeList = JSONObject.parseArray(JSONObject.parseObject(param.getNodes()).getString(serviceName), Edge.class);
             Map<String, List<Edge>> collect = edgeList.stream().collect(Collectors.groupingBy(Edge::getSouNodeId));
             collect.keySet().forEach(key -> {
@@ -142,8 +145,8 @@ public class DataHandleUtils {
         if (serviceName.equals(srcAreaId)) {
             if (flag) {
                 JSONObject json = bestRoad(souNodeId, dstNodeId, serviceName);
-                if(!StringUtils.isEmpty(slaType) && slaType.equals("protected")){
-                    json.put("type","primary");
+                if (!StringUtils.isEmpty(slaType) && slaType.equals("protected")) {
+                    json.put("type", "primary");
                 }
                 returnArray.add(json);
             } else {
@@ -203,6 +206,7 @@ public class DataHandleUtils {
         }
 
 
+        //次优路径
         if (atomicInteger.get() == 0 && flag && "protected".equals(slaType)) {
             secondRoute(returnArray, souNodeId, dstNodeId, serviceName);
         }
@@ -212,6 +216,14 @@ public class DataHandleUtils {
         return returnJson;
     }
 
+    /**
+     * 次优路径
+     * @param returnArray
+     * @param souNodeId
+     * @param dstNodeId
+     * @param serviceName
+     * @throws Exception
+     */
     private static void secondRoute(JSONArray returnArray, String souNodeId, String dstNodeId, String serviceName) throws Exception {
         List<JSONObject> jsonList = JSONObject.parseArray(returnArray.toJSONString(), JSONObject.class);
         jsonList.forEach(inJson -> {
@@ -243,7 +255,7 @@ public class DataHandleUtils {
         });
         remove();
         JSONObject jsonObject = bestRoad(souNodeId, dstNodeId, serviceName);
-        jsonObject.put("type","secondary");
+        jsonObject.put("type", "secondary");
         returnArray.add(jsonObject);
     }
 
@@ -295,6 +307,12 @@ public class DataHandleUtils {
         return returnJson;
     }
 
+    /**
+     *
+     * 整理vertex
+     * @param serviceName
+     * @param cloneDstVer
+     */
     private static void modifyVertex(String serviceName, Vertex cloneDstVer) {
         cloneDstVer.setSrcAreaId(serviceName);
         cloneDstVer.setDstAreaId(serviceName);
@@ -366,8 +384,4 @@ public class DataHandleUtils {
         });
     }
 
-
-    public static void secondRoute() {
-
-    }
 }
