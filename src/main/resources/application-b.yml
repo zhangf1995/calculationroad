@@ -1,0 +1,14 @@
+server:
+  port: 8091
+
+spring:
+  application:
+    name: cywb
+
+file:
+  delay:
+    location: F:\test\zuhe\cywb.json
+  ac:
+    location: F:\test\AREA-B.json
+  node:
+    location: F:\test\AREA-B-NODE.json

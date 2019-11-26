@@ -1,0 +1,16 @@
+server:
+  port: 8090
+
+spring:
+  application:
+    name: cywa
+
+file:
+  delay:
+    location: F:\test\zuhe\cywa.json
+  ac:
+    location: F:\test\AREA-A.json
+  node:
+    location: F:\test\AREA-A-NODE.json
+#logging:
+  #config: suanlu-logback.xml

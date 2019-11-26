@@ -1,0 +1,15 @@
+
+server:
+  port: 8092
+
+spring:
+  application:
+    name: ggw
+
+file:
+  delay:
+    location: F:\test\zuhe\ggw.json
+  ac:
+    location: F:\test\AREA-C.json
+  node:
+    location: F:\test\AREA-C-NODE.json
