@@ -1,11 +1,9 @@
 package com.otn.calculationroad.vo;
 
-import com.otn.calculationroad.utils.vo.Edge;
-
+import com.otn.calculationroad.anno.ValidateVariable;
 import lombok.Data;
 
-import java.util.List;
-import java.util.Map;
+
 
 /**
  * @BelongsProject: calculationroad
@@ -20,15 +18,26 @@ public class CacuParam {
     private List<String> dstNodes;*/
 
     private String nodes;
+    @ValidateVariable(field = "souNodeId")
     private String souNodeId;
+    @ValidateVariable(field = "dstNodeId")
     private String dstNodeId;
+    @ValidateVariable(field = "cacuType")
     private String cacuType;
+    @ValidateVariable(field = "srcAreaId")
     private String srcAreaId;
+    @ValidateVariable(field = "dstAreaId")
     private String dstAreaId;
+    @ValidateVariable(field = "delayPro")
     private Double delayPro;
+    @ValidateVariable(field = "ratioPro")
     private Double ratioPro;
+    @ValidateVariable(field = "routePro")
     private Double routePro;
+    @ValidateVariable(field = "metricPro")
     private Double metricPro;
+    @ValidateVariable(field = "isSingle")
     private Boolean isSingle;
+    @ValidateVariable(field = "slaType")
     private String slaType;
 }

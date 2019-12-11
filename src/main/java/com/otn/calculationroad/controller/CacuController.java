@@ -7,11 +7,15 @@ import com.otn.calculationroad.resp.Result;
 import com.otn.calculationroad.utils.DataHandleUtils;
 import com.otn.calculationroad.vo.CacuParam;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.util.unit.DataUnit;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 /**
  * @BelongsProject: calculationroad
@@ -36,6 +40,7 @@ public class CacuController {
     @Value("${file.node.location}")
     private String nodeFileName;
 
+
     /**
      * 算路器内部最优路径集合
      *
@@ -43,10 +48,10 @@ public class CacuController {
      * @throws Exception
      */
     @RequestMapping(value = "/cacuRouteList", method = RequestMethod.POST)
-    public Result cacuRouteList(@RequestBody CacuParam param) throws Exception {
-        if (ObjectUtils.isEmpty(param) || StringUtils.isEmpty(param.getSouNodeId()) || StringUtils.isEmpty(param.getDstNodeId()) || StringUtils.isEmpty(param.getCacuType())) {
+    public Result cacuRouteList(@Valid @RequestBody CacuParam param) throws Exception {
+    /*    if (ObjectUtils.isEmpty(param) || StringUtils.isEmpty(param.getSouNodeId()) || StringUtils.isEmpty(param.getDstNodeId()) || StringUtils.isEmpty(param.getCacuType())) {
             return Result.me().response(StateCode.FAIL.getCode(), CacuConstant.PARAM_NULL);
-        }
+        }*/
         JSONObject json = null;
         try {
             String fileName = null;

@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
+
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
@@ -26,7 +27,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class DataHandleUtils {
 
-    //此处用本地线程localthread将vermap和verEdgeMap包装起来，防止并发情况下多个线程修改同一块静态资源
     private static ReentrantLock lock = new ReentrantLock();
 
     //图的顶节点集
@@ -36,7 +36,7 @@ public class DataHandleUtils {
 
 
     /**
-     * 算路
+     * 算路入口
      *
      * @param param
      * @return
@@ -63,7 +63,7 @@ public class DataHandleUtils {
                             });
                         });
                     }
-                    //最小时延
+                    //dijkstra算法入口
                     returnJson = beforeBestRoad(param, serviceName);
                     break;
                 default:
@@ -81,6 +81,13 @@ public class DataHandleUtils {
         return returnJson;
     }
 
+    /**
+     * 填充数据
+     * @param param
+     * @param fileName
+     * @param caculateType
+     * @throws Exception
+     */
     private static void insertData(CacuParam param, String fileName, String caculateType) throws Exception {
         Double delayPro = param.getDelayPro();
         Double ratioPro = param.getRatioPro();
@@ -123,7 +130,7 @@ public class DataHandleUtils {
     public static JSONObject beforeBestRoad(CacuParam param, String serviceName) throws Exception {
         JSONObject returnJson = new JSONObject();
         JSONArray returnArray = new JSONArray();
-        AtomicInteger atomicInteger = new AtomicInteger(0);
+        //AtomicInteger atomicInteger = new AtomicInteger(0);
         //是否单域
         Boolean flag = param.getIsSingle();
         String srcAreaId = param.getSrcAreaId();
@@ -142,6 +149,7 @@ public class DataHandleUtils {
         }
         String souNodeId = param.getSouNodeId();
         String dstNodeId = param.getDstNodeId();
+
         if (serviceName.equals(srcAreaId)) {
             if (flag) {
                 JSONObject json = bestRoad(souNodeId, dstNodeId, serviceName);
@@ -207,7 +215,7 @@ public class DataHandleUtils {
 
 
         //次优路径
-        if (atomicInteger.get() == 0 && flag && "protected".equals(slaType)) {
+        if (flag && "protected".equals(slaType)) {
             secondRoute(returnArray, souNodeId, dstNodeId, serviceName);
         }
 
@@ -232,7 +240,7 @@ public class DataHandleUtils {
             inList.forEach(innerJson -> {
                 Vertex vertex = JSONObject.parseObject(innerJson.toJSONString(), Vertex.class);
                 String parentNodeId = vertex.getParentNodeId();
-                if (!parentNodeId.equals(souNodeId)) {
+                if (!parentNodeId.equals(souNodeId) && !StringUtils.isEmpty(parentNodeId)) {
                     verMap.remove(parentNodeId);
                     if (verEdgeMap.containsKey(parentNodeId)) {
                         verEdgeMap.remove(parentNodeId);
@@ -245,11 +253,11 @@ public class DataHandleUtils {
                         });
                     });
                 } else {
-                    List<Edge> edgeList1 = verEdgeMap.get(parentNodeId);
+       /*             List<Edge> edgeList1 = verEdgeMap.get(parentNodeId);
                     List<Edge> edges1 = edgeList1.stream().filter(edge -> edge.getDstNodeId().equals(parentNodeId)).collect(Collectors.toList());
                     edges1.forEach(inEdge -> {
                         edges1.remove(inEdge);
-                    });
+                    });*/
                 }
             });
         });
@@ -369,9 +377,6 @@ public class DataHandleUtils {
         for (Vertex vertex : childList) {
             updateChildren(vertex);
         }
-      /*  childList.forEach(vertex -> {
-
-        });*/
     }
 
     /**
